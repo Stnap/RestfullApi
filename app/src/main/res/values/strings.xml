@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RestfullApi</string>
+    <string name="user_id">UserId</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="send">Enviar</string>
+</resources>

@@ -53,16 +53,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                reedWs();
-//                postWs();
+                postWs();
 //                postFromButtonWs(txt_title.getText().toString(), txt_body.getText().toString(), txt_user_id.getText().toString());
-                updatedWs(txt_title.getText().toString(), txt_body.getText().toString(), txt_user_id.getText().toString());
+//                updatedWs(txt_title.getText().toString(), txt_body.getText().toString(), txt_user_id.getText().toString());
             }
         });
     }
 
-    private void reedWs() {
-        String url = "https://jsonplaceholder.typicode.com/todos/5";
+    private void cleanForm() {
+        txt_user_id.setText("");
+        txt_body.setText("");
+        txt_title.setText("");
+    }
 
+    private void reedWs() {
+        String url = "https://jsonplaceholder.typicode.com/todos/" + txt_user_id.getText().toString();
+
+        cleanForm();
         StringRequest postRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
@@ -164,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-//                    txt_user_id.setText(jsonObject.getString("userId"));
-//                    txt_title.setText(jsonObject.getString("title"));
+                    txt_user_id.setText(jsonObject.getString("userId"));
+                    txt_title.setText(jsonObject.getString("title"));
                     txt_body.setText(response);
                     Toast.makeText(MainActivity.this, "Id es: " + jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
@@ -243,12 +250,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // Do something when error occurred
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Do something when error occurred
+                    }
                 }
-            }
         );
         Volley.newRequestQueue(this).add(jsonArrayRequest);
     }

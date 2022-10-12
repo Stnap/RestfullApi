@@ -4,4 +4,10 @@
     <string name="title">Title</string>
     <string name="body">Body</string>
     <string name="send">Enviar</string>
+    <string name="save">Guardar</string>
+    <string name="update">Actualizar</string>
+    <string name="delete">Eliminar</string>
+    <string name="search">Buscar</string>
+    <string name="code">Código</string>
+    <string name="name">Nombre</string>
 </resources>

@@ -29,9 +29,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText txt_user_id, txt_title, txt_body;
-    Button btn_send;
-
+    EditText txt_code, txt_name;
+    Button btn_save, btn_update, btn_delete, btn_search;
     List<String> data;
     ListView listData;
 
@@ -39,35 +38,49 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txt_user_id = (EditText) findViewById(R.id.txt_user_id);
-        txt_title = (EditText) findViewById(R.id.txt_title);
-        txt_body = (EditText) findViewById(R.id.txt_body);
-        btn_send = (Button) findViewById(R.id.btn_send);
-        listData = (ListView) findViewById(R.id.lv_1);
-        listWs();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, data);
-
+        initUI();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         listData.setAdapter(adapter);
-        btn_send.setOnClickListener(new View.OnClickListener() {
+        listWs(adapter);
+
+        btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                reedWs();
-                postWs();
-//                postFromButtonWs(txt_title.getText().toString(), txt_body.getText().toString(), txt_user_id.getText().toString());
-//                updatedWs(txt_title.getText().toString(), txt_body.getText().toString(), txt_user_id.getText().toString());
+                String s_code = txt_code.getText().toString();
+                String s_name = txt_name.getText().toString();
+                postFromButtonWs(s_code, s_name);
+                cleanForm();
+                chargeListView();
             }
         });
     }
 
+    private void initUI() {
+        txt_code = (EditText) findViewById(R.id.txt_code);
+        txt_name = (EditText) findViewById(R.id.txt_name);
+        btn_save = (Button) findViewById(R.id.btn_save);
+        btn_update = (Button) findViewById(R.id.btn_update);
+        btn_search = (Button) findViewById(R.id.btn_search);
+        btn_delete = (Button) findViewById(R.id.btn_delete);
+        listData = (ListView) findViewById(R.id.lv_1);
+
+    }
+
+    private void chargeListView() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, data);
+        listData.setAdapter(adapter);
+        listWs(adapter);
+    }
+
     private void cleanForm() {
-        txt_user_id.setText("");
-        txt_body.setText("");
-        txt_title.setText("");
+        txt_code.setText("");
+        txt_name.setText("");
     }
 
     private void reedWs() {
-        String url = "https://jsonplaceholder.typicode.com/todos/" + txt_user_id.getText().toString();
+        String url = "https://jsonplaceholder.typicode.com/todos/" + txt_code.getText().toString();
 
         cleanForm();
         StringRequest postRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -75,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-                    txt_user_id.setText(jsonObject.getString("userId"));
-                    txt_title.setText(jsonObject.getString("title"));
+                    txt_code.setText(jsonObject.getString("userId"));
+                    txt_name.setText(jsonObject.getString("title"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -86,61 +99,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("error de consulta el API REST", error.getMessage());
-
             }
         });
 
         Volley.newRequestQueue(this).add(postRequest);
     }
 
-    private void postWs() {
-        String url = "https://jsonplaceholder.typicode.com/posts";
-
+    private void postFromButtonWs(final String code, final String name) {
+        String url = "http://192.168.1.189:8000/api/projects";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-                    txt_user_id.setText(jsonObject.getString("userId"));
-                    txt_title.setText(jsonObject.getString("title"));
-                    txt_body.setText(jsonObject.getString("body"));
-                    Toast.makeText(MainActivity.this, "Id es: " + jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("error de consulta el API REST", error.getMessage());
-
-            }
-        }) {
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("title", "POST TITLE UCN");
-                params.put("body", "POST CONTENT UCN");
-                params.put("userId", "1");
-                return params;
-            }
-        };
-
-        Volley.newRequestQueue(this).add(postRequest);
-    }
-
-    private void postFromButtonWs(final String title, final String body, final String userId) {
-        String url = "https://jsonplaceholder.typicode.com/posts";
-
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    txt_user_id.setText(jsonObject.getString("userId"));
-                    txt_title.setText(jsonObject.getString("title"));
-                    txt_body.setText(response);
-                    Toast.makeText(MainActivity.this, "Id es: " + jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Proyecto: " + name + " creado exitosamente", Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -149,58 +121,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("error de consulta el API REST", error.getMessage());
-
             }
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("title", title);
-                params.put("body", body);
-                params.put("userId", userId);
+                params.put("code", code);
+                params.put("name", name);
                 return params;
             }
         };
         Volley.newRequestQueue(this).add(postRequest);
     }
 
-    private void updatedWs(final String title, final String body, final String userId) {
+    private void updatedWs(final String code, final String name) {
         String url = "https://jsonplaceholder.typicode.com/posts/1";
-
         StringRequest postRequest = new StringRequest(Request.Method.PUT, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-                    txt_user_id.setText(jsonObject.getString("userId"));
-                    txt_title.setText(jsonObject.getString("title"));
-                    txt_body.setText(response);
                     Toast.makeText(MainActivity.this, "Id es: " + jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("error de consulta el API REST", error.getMessage());
-
             }
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("id", "1");
-                params.put("title", title);
-                params.put("body", body);
-                params.put("userId", userId);
                 return params;
             }
         };
-
         Volley.newRequestQueue(this).add(postRequest);
     }
 
-    private void deleteWs(final String title, final String body, final String userId) {
+    private void deleteWs(final String code) {
         String url = "https://jsonplaceholder.typicode.com/posts/1";
 
         StringRequest postRequest = new StringRequest(Request.Method.DELETE, url, new Response.Listener<String>() {
@@ -208,14 +167,9 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(String response) {//metodo se ejecuta cuando hay respuesta del web service
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-//                    txt_user_id.setText(jsonObject.getString("userId"));
-//                    txt_title.setText(jsonObject.getString("title"));
-                    txt_body.setText(response);
-//                    Toast.makeText(MainActivity.this, "Id es: " + jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         }, new Response.ErrorListener() {
             @Override
@@ -227,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(postRequest);
     }
 
-    private void listWs() {
-        String url = "https://jsonplaceholder.typicode.com/posts";
+    private void listWs(ArrayAdapter adapter) {
+        String url = "http://192.168.1.189:8000/api/projects";
         data = new ArrayList<String>();
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -238,11 +192,8 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONObject obj = response.getJSONObject(i);
                             Group g = new Group();
-                            g.setId(Integer.parseInt(obj.get("id").toString()));
-                            g.setTitle(obj.get("title").toString());
-                            g.setUserId(obj.get("userId").toString());
-                            g.setBody(obj.get("body").toString());
-                            data.add(g.getTitle());
+                            g.setTitle(obj.get("name").toString());
+                            adapter.add(g.getTitle());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -254,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // Do something when error occurred
+                        Log.e("error de consulta el API REST", error.getMessage());
                     }
                 }
         );
